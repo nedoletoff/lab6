@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <cstdio>
 #include <iostream>
@@ -23,19 +22,16 @@ void destroy(list_t* l)		//done
 	}
 }
 
-void push_back(list_t* l, char* val)	//done(?)
+void push_back(list_t* l, char* val)	//done
 {
-//	std::cout << "push_back" << std::endl;
 	node_t* n;
 	node_t* cur;
 	n = (node_t*) malloc(sizeof(node_t));
-//	n->value = "";
 	for (int i = 0; i < SIZE; ++i)
 		n->value[i] = val[i];
        	n->next = NULL;
 	if (l->head == NULL)
 	{
-		std::cout << "aded first element" << std::endl;
 		n->prev = NULL;
 		l->head = n;
 	}
@@ -43,98 +39,16 @@ void push_back(list_t* l, char* val)	//done(?)
 	{
 		cur = l->tail; cur->next = n;
 		n->prev = cur;
-//		std::cout << "added " << l->size << std::endl;
 	}
 	l->tail = n;
 	++l->size;
 }
 
-
-
-void push_before(list_t* l, node_t* cur, char* val)	//done
+int my_strcmp(char* str1, char* str2) // -1 <=; 1 >;
 {
-//	std::cout << "push_before" << std::endl;
-	node_t* q = l->head;
-//	std::cout << "\n"  << cur->value << " ";
-//	if (cur == l->head)
-//		std::cout << "NULL\n";
-//	else
-//		std::cout << cur->prev->value << "    ";
-	print(q, l->size);
-	node_t* n;
-	n = (node_t*) malloc(sizeof(node_t));
-	for (int i = 0; i < SIZE; ++i)
-		n->value[i] = val[i];
-       	n->next = cur;
-	if (l->head == cur)
-	{
-		l->head = n;
-		n->prev = NULL;
-//		std::cout << "in head";
-	}
-	else
-	{
-		cur->prev->next = n;
-		n->prev = cur->prev;
-//		std::cout << cur->value << " " << cur->prev->value << std::endl;
-	}
-	cur->prev = n;
-
-	++l->size;
-//	std::cout << n->prev->value << " n->prev->value" << std::endl;
-//	std::cout << "added " << l->size << std::endl;
-	q = l->head;
-	print(q, l->size);
-
-}
-
-void print(node_t* cur, size_t size)
-{
-	for (size_t i = 0; i < size; ++i)
-	{
-		std::cout << cur->value << "\t";
-		cur = cur->next;
-		if (cur == NULL)
-			break;
-	}
-	printf("\n");
-}
-
-void insert_sort(list_t* l, char* val)	//doesnt work ???
-{
-//	std::cout << "insert_sort started" << std::endl;
-//	std::cout << val << std::endl;
-//	int count = 0;
-	if (l->head == NULL)
-		push_back(l, val);
-	else
-	{
-		node_t* cur;
-		cur = l->head;
-		std::cout << val << std::endl;
-		while (my_strcmp(val, cur->value) == 1)
-		{
-//			std::cout << "\'" << std::endl;
-			if (cur->next == NULL)
-			{
-				push_back(l, val);
-				return;
-			}
-			cur = cur->next;
-		}
-//		std::cout << cur->value << std::endl;
-//		std::cout << "word added" << std::endl; 
-		push_before(l, cur, val);
-	}
-}
-
-int my_strcmp(char* str1, char* str2) // -1 <=; 1 >; 0 =;
-{
-//	std::cout << str1 << " - " << str2 << std::endl;
 	int i = 0;
 	while (str1[i] == str2[i] && str2[i] != '\0' && str1[i] != '\0')
 		     ++i;
-//	std::cout << i << " ";
 	if (str1[i] <= str2[i])
 		return -1;
 	if (str1[i] > str2[i])
@@ -145,14 +59,75 @@ int my_strcmp(char* str1, char* str2) // -1 <=; 1 >; 0 =;
 	return -3;
 }
 
-void my_link(list_t* first, list_t* next) //not need not done
+void push_before(list_t* l, node_t* cur, char* val)	//done
 {
-	first->tail->next = next->head;
-	first->tail = next->tail;
-	next->head = first->head;
+	node_t* n;
+	n = (node_t*) malloc(sizeof(node_t));
+	for (int i = 0; i < SIZE; ++i)
+		n->value[i] = val[i];
+       	n->next = cur;
+	if (l->head == cur)
+	{
+		l->head = n;
+		n->prev = NULL;
+	}
+	else
+	{
+		cur->prev->next = n;
+		n->prev = cur->prev;
+	}
+	cur->prev = n;
+
+	++l->size;
+
 }
 
-void sort_link(list_t* one, list_t* another, list_t* result)	//???
+void print(node_t* cur, size_t size) //done
+{
+	for (size_t i = 0; i < size; ++i)
+	{
+		std::cout << cur->value << std::endl;
+		cur = cur->next;
+		if (cur == NULL)
+			break;
+	}
+	std::cout << std::endl;
+}
+
+void insert_sort(list_t* l, char* val)	//done
+{
+	if (l->head == NULL)
+		push_back(l, val);
+	else
+	{
+		node_t* cur;
+		cur = l->head;
+		while (my_strcmp(val, cur->value) == 1)
+		{
+			if (cur->next == NULL)
+			{
+				push_back(l, val);
+				return;
+			}
+			cur = cur->next;
+		}
+		push_before(l, cur, val);
+	}
+}
+
+void my_link(list_t* first, list_t* second) //not need done
+{
+//	std::cout << first->size << " " << second->size << std::endl;
+	first->tail->next = second->head;
+	second->head->prev = first->tail;
+	first->tail = second->tail;
+	second->head = first->head;
+	first->size += second->size;
+	second->size = first->size;
+//	std::cout << first->size << " " << second->size << std::endl;
+}
+
+void sort_link(list_t* one, list_t* another, list_t* result)	// done
 {
 	node_t* first = one->head;
 	node_t* second = another->head;
@@ -238,7 +213,6 @@ void insert_str(char* filename, list_t* l)	//done
 	  		if (count > 0)
 			{
 				insert_sort(l, str);
-//				std::cout << str << std::endl;
 			}
 			for (int i = 0; i < count; i++)
 	    			str[i] = '\0';

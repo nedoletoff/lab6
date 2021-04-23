@@ -3,7 +3,6 @@
 #include <cstdio>
 #include <iostream>
 #include "pr.hpp"
-#define N 256
 
 void init(list_t* l)		//done
 {
@@ -26,12 +25,17 @@ void destroy(list_t* l)		//done
 
 void push_back(list_t* l, char* val)	//done(?)
 {
+//	std::cout << "push_back" << std::endl;
 	node_t* n;
 	node_t* cur;
 	n = (node_t*) malloc(sizeof(node_t));
-	n->value = val; n->next = NULL;
+//	n->value = "";
+	for (int i = 0; i < SIZE; ++i)
+		n->value[i] = val[i];
+       	n->next = NULL;
 	if (l->head == NULL)
 	{
+		std::cout << "aded first element" << std::endl;
 		n->prev = NULL;
 		l->head = n;
 	}
@@ -39,35 +43,59 @@ void push_back(list_t* l, char* val)	//done(?)
 	{
 		cur = l->tail; cur->next = n;
 		n->prev = cur;
+//		std::cout << "added " << l->size << std::endl;
 	}
 	l->tail = n;
 	++l->size;
 }
 
+
+
 void push_before(list_t* l, node_t* cur, char* val)	//done
 {
+//	std::cout << "push_before" << std::endl;
+	node_t* q = l->head;
+//	std::cout << "\n"  << cur->value << " ";
+//	if (cur == l->head)
+//		std::cout << "NULL\n";
+//	else
+//		std::cout << cur->prev->value << "    ";
+	print(q, l->size);
 	node_t* n;
 	n = (node_t*) malloc(sizeof(node_t));
-	n->value = val; n->next = cur;
-	n->prev = cur->prev; cur->prev = n;
+	for (int i = 0; i < SIZE; ++i)
+		n->value[i] = val[i];
+       	n->next = cur;
 	if (l->head == cur)
+	{
 		l->head = n;
+		n->prev = NULL;
+//		std::cout << "in head";
+	}
 	else
+	{
 		cur->prev->next = n;
+		n->prev = cur->prev;
+//		std::cout << cur->value << " " << cur->prev->value << std::endl;
+	}
+	cur->prev = n;
+
 	++l->size;
+//	std::cout << n->prev->value << " n->prev->value" << std::endl;
+//	std::cout << "added " << l->size << std::endl;
+	q = l->head;
+	print(q, l->size);
 
 }
 
-void print(list_t* l)	//doesnt work
+void print(node_t* cur, size_t size)
 {
-	int count = 0;
-	printf("print start\n");
-	node_t*cur = l->head;
-	while (cur != NULL)
+	for (size_t i = 0; i < size; ++i)
 	{
-//		printf("%d\n", count++);
-		printf("%s ", cur->value);
+		std::cout << cur->value << "\t";
 		cur = cur->next;
+		if (cur == NULL)
+			break;
 	}
 	printf("\n");
 }
@@ -76,14 +104,17 @@ void insert_sort(list_t* l, char* val)	//doesnt work ???
 {
 //	std::cout << "insert_sort started" << std::endl;
 //	std::cout << val << std::endl;
+//	int count = 0;
 	if (l->head == NULL)
 		push_back(l, val);
 	else
 	{
 		node_t* cur;
 		cur = l->head;
+		std::cout << val << std::endl;
 		while (my_strcmp(val, cur->value) == 1)
 		{
+//			std::cout << "\'" << std::endl;
 			if (cur->next == NULL)
 			{
 				push_back(l, val);
@@ -91,35 +122,27 @@ void insert_sort(list_t* l, char* val)	//doesnt work ???
 			}
 			cur = cur->next;
 		}
+//		std::cout << cur->value << std::endl;
+//		std::cout << "word added" << std::endl; 
 		push_before(l, cur, val);
 	}
 }
 
-void push_front(list_t* l, char* val)	//not need
+int my_strcmp(char* str1, char* str2) // -1 <=; 1 >; 0 =;
 {
-	node_t* n = (node_t*) malloc(sizeof(node_t));
-	if (l->tail == l->head)
-		l->tail = n;
-	n->value = val;
-	n->prev = NULL;
-	n->next = l->head;
-	l->head->prev = n;
-	l->head = n;
-	++l->size;
-}
-
-int my_strcmp(char* str1, char* str2) // -1 <; 1 >; 0 =;
-{
-	std::cout << str1 << " - " << str2 << std::endl;
+//	std::cout << str1 << " - " << str2 << std::endl;
 	int i = 0;
-	while (str1[i] == str2[i] && str2[i] != '\0')
+	while (str1[i] == str2[i] && str2[i] != '\0' && str1[i] != '\0')
 		     ++i;
-	if (str1[i] < str2[i])
+//	std::cout << i << " ";
+	if (str1[i] <= str2[i])
 		return -1;
 	if (str1[i] > str2[i])
 		return 1;
 	if (str2[i] == '\0')
 		return 0;
+	std::cout << "wtf" << std::endl;
+	return -3;
 }
 
 void my_link(list_t* first, list_t* next) //not need not done
@@ -168,8 +191,8 @@ void get_filename(char* n)	//done
 		if (check == -1)
 			std::cout << "Try again" << std::endl;
 		std::cout<< "Type file name" << std::endl;
-		std::cin.getline(n, N);
-		for (int i = 0; i < N; ++i)
+		std::cin.getline(n, SIZE);
+		for (int i = 0; i < SIZE; ++i)
 		{
 			if (n[i] == '\0')
 			{
@@ -200,7 +223,7 @@ int open_file(char* name)	//done
 void insert_str(char* filename, list_t* l)	//done
 {
 	FILE* rFile = fopen(filename, "r");
-	char str[N] = {'\0'};
+	char str[SIZE] = {'\0'};
 	char ch = '\0';
 	int count = 0;
 
